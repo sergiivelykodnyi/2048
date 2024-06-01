@@ -1,7 +1,24 @@
 import { observable, action, toJS, computed, makeObservable } from "mobx";
 import zip from "lodash/zip";
 
-export type Direction = "up" | "down" | "left" | "right";
+export type Direction =
+  // Left.
+  | "ArrowLeft"
+  | "h"
+  | "a"
+  // Down.
+  | "ArrowDown"
+  | "j"
+  | "s"
+  // Up.
+  | "ArrowUp"
+  | "k"
+  | "w"
+  // Right.
+  | "ArrowRight"
+  | "l"
+  | "d";
+
 export type Grid = number[][];
 
 interface IGame {
@@ -61,20 +78,36 @@ export class Game implements IGame {
   move(direction: Direction) {
     let newGrid: Grid = toJS(this.grid);
 
-    if (direction === "left") {
-      newGrid = this.moveLeft(newGrid);
-    } else if (direction === "right") {
-      newGrid = newGrid.map((row) => row.reverse());
-      newGrid = this.moveLeft(newGrid);
-      newGrid = newGrid.map((row) => row.reverse());
-    } else if (direction === "up") {
-      newGrid = [...zip(...newGrid)] as Grid;
-      newGrid = this.moveLeft(newGrid);
-      newGrid = [...zip(...newGrid)] as Grid;
-    } else if (direction === "down") {
-      newGrid = [...zip(...newGrid).map((row) => row.reverse())] as Grid;
-      newGrid = this.moveLeft(newGrid);
-      newGrid = [...zip(...newGrid.map((row) => row.reverse()))] as Grid;
+    switch (direction) {
+      case "ArrowLeft":
+      case "h":
+      case "a":
+        newGrid = this.moveLeft(newGrid);
+        break;
+      case "ArrowRight":
+      case "l":
+      case "d":
+        newGrid = newGrid.map((row) => row.reverse());
+        newGrid = this.moveLeft(newGrid);
+        newGrid = newGrid.map((row) => row.reverse());
+        break;
+      case "ArrowUp":
+      case "k":
+      case "w":
+        newGrid = [...zip(...newGrid)] as Grid;
+        newGrid = this.moveLeft(newGrid);
+        newGrid = [...zip(...newGrid)] as Grid;
+        break;
+      case "ArrowDown":
+      case "j":
+      case "s":
+        newGrid = [...zip(...newGrid).map((row) => row.reverse())] as Grid;
+        newGrid = this.moveLeft(newGrid);
+        newGrid = [...zip(...newGrid.map((row) => row.reverse()))] as Grid;
+        break;
+
+      default:
+        return;
     }
 
     this.grid = this.addRandomTile(newGrid);

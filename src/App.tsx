@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import Tile from "./components/Tile";
-import { Game } from "./game";
+import { Direction, Game } from "./game";
 
 const App = observer(() => {
   // const board = [
@@ -14,20 +14,7 @@ const App = observer(() => {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      switch (e.key) {
-        case "ArrowUp":
-          game.move("up");
-          break;
-        case "ArrowDown":
-          game.move("down");
-          break;
-        case "ArrowLeft":
-          game.move("left");
-          break;
-        case "ArrowRight":
-          game.move("right");
-          break;
-      }
+      game.move(e.key as Direction);
 
       if (game.isWin) {
         alert("You win!");
