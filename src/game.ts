@@ -1,11 +1,13 @@
+import zip from "lodash/zip";
+
 export type Direction = "up" | "down" | "left" | "right";
 
-export function addRandomTile(board: number[][]) {
+export function addRandomTile(grid: number[][]) {
   const emptyTiles = [];
 
-  for (let i = 0; i < board.length; i++) {
-    for (let j = 0; j < board[i].length; j++) {
-      if (board[i][j] === 0) {
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === 0) {
         emptyTiles.push({ x: i, y: j });
       }
     }
@@ -13,60 +15,60 @@ export function addRandomTile(board: number[][]) {
 
   if (emptyTiles.length > 0) {
     const { x, y } = emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
-    board[x][y] = Math.random() < 0.9 ? 2 : 4;
+    grid[x][y] = Math.random() < 0.9 ? 2 : 4;
   }
 }
 
 export function initialize() {
-  const board = [
+  const grid = [
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
   ];
 
-  addRandomTile(board);
-  addRandomTile(board);
+  addRandomTile(grid);
+  addRandomTile(grid);
 
-  return board;
+  return grid;
 }
 
-export function slide(row: number[]) {
+export function slideRowLeft(row: number[]) {
   // remove zeros
-  let arr = row.filter((val) => val);
-  const missing = 4 - arr.length;
+  const newRow = row.filter((val) => val);
+  const missing = 4 - newRow.length;
   const zeros = Array(missing).fill(0);
 
-  // add zeros
-  arr = zeros.concat(arr);
-
-  return arr;
+  return newRow.concat(zeros);
 }
 
-export function combine(row: number[]) {
-  const arr = [...row];
+export function mergeNumbersInRow(row: number[]) {
+  const mergedRow = row.slice();
 
-  for (let i = 3; i >= 1; i--) {
-    const a = arr[i];
-    const b = arr[i - 1];
+  for (let i = 0; i < 4; i++) {
+    const a = mergedRow[i];
+    const b = mergedRow[i + 1];
 
     if (a === b) {
-      arr[i] = a + b;
-      arr[i - 1] = 0;
+      mergedRow[i] = a + b;
+      mergedRow[i + 1] = 0;
     }
   }
 
-  return arr;
+  return mergedRow;
 }
 
-export function operate(row: number[]) {
-  let arr = [...row];
+export function moveLeft(grid: number[][]) {
+  const newGrid = [];
 
-  arr = slide(arr);
-  arr = combine(arr);
-  arr = slide(arr);
+  for (let row of grid) {
+    row = slideRowLeft(row);
+    row = mergeNumbersInRow(row);
+    row = slideRowLeft(row);
+    newGrid.push(row);
+  }
 
-  return arr;
+  return newGrid;
 }
 
 export function isGameOver(board: number[][]) {
@@ -100,37 +102,22 @@ export function isWin(board: number[][]) {
 }
 
 export function move(board: number[][], direction: Direction) {
-  const newBoard = [...board];
+  let newBoard: number[][] = [...board];
 
-  for (let i = 0; i < 4; i++) {
-    let row;
-
-    if (direction === "left") {
-      row = newBoard[i].slice().reverse();
-      row = operate(row);
-      newBoard[i] = row.reverse();
-    } else if (direction === "right") {
-      row = newBoard[i];
-      row = operate(row);
-      newBoard[i] = row;
-    } else if (direction === "up") {
-      row = [
-        newBoard[0][i],
-        newBoard[1][i],
-        newBoard[2][i],
-        newBoard[3][i],
-      ].reverse();
-      row = operate(row);
-      for (let j = 0; j < 4; j++) {
-        board[j][i] = row[3 - j];
-      }
-    } else if (direction === "down") {
-      row = [newBoard[0][i], newBoard[1][i], newBoard[2][i], newBoard[3][i]];
-      row = operate(row);
-      for (let j = 0; j < 4; j++) {
-        newBoard[j][i] = row[j];
-      }
-    }
+  if (direction === "left") {
+    newBoard = moveLeft(newBoard);
+  } else if (direction === "right") {
+    newBoard = newBoard.map((row) => row.reverse());
+    newBoard = moveLeft(newBoard);
+    newBoard = newBoard.map((row) => row.reverse());
+  } else if (direction === "up") {
+    newBoard = [...zip(...newBoard)] as number[][];
+    newBoard = moveLeft(newBoard);
+    newBoard = [...zip(...newBoard)] as number[][];
+  } else if (direction === "down") {
+    newBoard = [...zip(...newBoard).map((row) => row.reverse())] as number[][];
+    newBoard = moveLeft(newBoard);
+    newBoard = [...zip(...newBoard.map((row) => row.reverse()))] as number[][];
   }
 
   addRandomTile(newBoard);

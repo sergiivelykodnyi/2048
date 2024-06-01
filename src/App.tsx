@@ -13,8 +13,6 @@ function App() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      console.log(e.key);
-
       switch (e.key) {
         case "ArrowUp":
           setBoard(Game.move(board, "up"));
