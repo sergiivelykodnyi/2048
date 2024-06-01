@@ -1,41 +1,42 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { observer } from "mobx-react-lite";
 import Tile from "./components/Tile";
-import * as Game from "./game";
+import { Game } from "./game";
 
-function App() {
+const App = observer(() => {
   // const board = [
   //   [0, 2, 4, 8],
   //   [16, 32, 64, 128],
   //   [256, 512, 1024, 2048],
   //   [0, 0, 0, 0],
   // ];
-  const [board, setBoard] = useState(Game.initialize());
+  const game = useMemo(() => new Game(), []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case "ArrowUp":
-          setBoard(Game.move(board, "up"));
+          game.move("up");
           break;
         case "ArrowDown":
-          setBoard(Game.move(board, "down"));
+          game.move("down");
           break;
         case "ArrowLeft":
-          setBoard(Game.move(board, "left"));
+          game.move("left");
           break;
         case "ArrowRight":
-          setBoard(Game.move(board, "right"));
+          game.move("right");
           break;
       }
 
-      if (Game.isWin(board)) {
+      if (game.isWin) {
         alert("You win!");
-        setBoard(Game.initialize());
+        game.initialize();
       }
 
-      if (Game.isGameOver(board)) {
+      if (game.isGameOver) {
         alert("Game over!");
-        setBoard(Game.initialize());
+        game.initialize();
       }
     };
 
@@ -44,20 +45,20 @@ function App() {
     return () => {
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [board]);
+  }, [game]);
 
   return (
     <div className="grid place-content-center mx-auto px-6 py-12">
       <div className="space-y-8">
         <h1 className="text-7xl font-bold text-stone-600">2048</h1>
         <div className="grid grid-cols-4 grid-rows-4 gap-3 w-96 h-96 p-3 bg-stone-300 rounded">
-          {board.map((row, i) =>
+          {game.grid.map((row, i) =>
             row.map((tile, j) => <Tile key={`${i}-${j}`} tile={tile} />)
           )}
         </div>
       </div>
     </div>
   );
-}
+});
 
 export default App;
