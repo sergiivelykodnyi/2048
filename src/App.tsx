@@ -4,7 +4,7 @@ import Tile from "./components/Tile";
 import { Direction, Game } from "./game";
 
 const App = observer(() => {
-  // const board = [
+  // const grid = [
   //   [0, 2, 4, 8],
   //   [16, 32, 64, 128],
   //   [256, 512, 1024, 2048],
@@ -18,12 +18,10 @@ const App = observer(() => {
 
       if (game.isWin) {
         alert("You win!");
-        game.initialize();
       }
 
       if (game.isGameOver) {
         alert("Game over!");
-        game.initialize();
       }
     };
 
@@ -35,10 +33,29 @@ const App = observer(() => {
   }, [game]);
 
   return (
-    <div className="grid place-content-center mx-auto px-6 py-12">
-      <div className="space-y-8">
-        <h1 className="text-7xl font-bold text-stone-600">2048</h1>
-        <div className="grid grid-cols-4 grid-rows-4 gap-3 w-96 h-96 p-3 bg-stone-300 rounded">
+    <div className="mx-auto px-6 py-12 max-w-[560px]">
+      <div className="space-y-6">
+        <header>
+          <h1 className="text-7xl font-bold text-stone-700">2048</h1>
+        </header>
+        <div className="grid items-center grid-cols-3 gap-3 text-stone-600 font-semibold">
+          <button
+            className="p-3 bg-amber-600 text-white rounded"
+            type="button"
+            onClick={() => game.initialize()}
+          >
+            New Game
+          </button>
+          <div className="p-3 bg-stone-500 rounded">
+            <span className="text-stone-100">Score:</span>{" "}
+            <span className="text-white">{game.score}</span>
+          </div>
+          <div className="p-3 bg-stone-500 text-white rounded">
+            <span className="text-stone-100">Best:</span>{" "}
+            <span className="text-white">{game.score}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 grid-rows-4 gap-3 w-full aspect-square p-3 bg-stone-300 rounded">
           {game.grid.map((row, i) =>
             row.map((tile, j) => <Tile key={`${i}-${j}`} tile={tile} />)
           )}

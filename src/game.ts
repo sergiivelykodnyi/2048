@@ -32,9 +32,12 @@ interface IGame {
 export class Game implements IGame {
   grid: Grid = [];
 
+  score = 0;
+
   constructor() {
     makeObservable(this, {
       grid: observable,
+      score: observable,
       isGameOver: computed,
       isWin: computed,
       initialize: action,
@@ -45,6 +48,7 @@ export class Game implements IGame {
   }
 
   initialize() {
+    this.score = 0;
     this.grid = this.addRandomTile(
       this.addRandomTile([
         [0, 0, 0, 0],
@@ -132,6 +136,7 @@ export class Game implements IGame {
       if (a === b) {
         mergedRow[i] = a + b;
         mergedRow[i + 1] = 0;
+        this.score += mergedRow[i];
       }
     }
 
